@@ -467,7 +467,20 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
 
               {/* Icon rendering */}
               <div className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center relative z-10 pointer-events-none">
-                {tech.svg}
+                {tech.image ? (
+                  <span className="flex h-full w-full items-center justify-center rounded-md bg-white p-1">
+                    <img
+                      src={tech.image}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      draggable={false}
+                      className="h-full w-full object-contain"
+                    />
+                  </span>
+                ) : (
+                  tech.svg
+                )}
               </div>
 
               {/* Minimal Tech Tag indicator */}

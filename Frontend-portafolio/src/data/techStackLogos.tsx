@@ -9,10 +9,42 @@ export interface TechItem {
   keycapTop: string;
   keycapSkirt: string;
   textColor: string;
+  image?: string;
   svg: React.ReactNode;
 }
 
-export const techStackList: TechItem[] = [
+const technologyLogoPaths: Partial<Record<TechItem['name'], string>> = {
+  JavaScript: '/assets/images/tech-logos/javascript.webp',
+  TypeScript: '/assets/images/tech-logos/typescript.webp',
+  HTML5: '/assets/images/tech-logos/html5.webp',
+  CSS3: '/assets/images/tech-logos/css3.webp',
+  React: '/assets/images/tech-logos/react.webp',
+  'Tailwind CSS': '/assets/images/tech-logos/tailwind-css.webp',
+  Flutter: '/assets/images/tech-logos/flutter.webp',
+  Dart: '/assets/images/tech-logos/dart.webp',
+  Vite: '/assets/images/tech-logos/vite.webp',
+  Figma: '/assets/images/tech-logos/figma.webp',
+  'Node.js': '/assets/images/tech-logos/node-js.webp',
+  Express: '/assets/images/tech-logos/express.webp',
+  NestJS: '/assets/images/tech-logos/nestjs.webp',
+  Python: '/assets/images/tech-logos/python.webp',
+  FastAPI: '/assets/images/tech-logos/fastapi.webp',
+  PostgreSQL: '/assets/images/tech-logos/postgresql.webp',
+  MongoDB: '/assets/images/tech-logos/mongodb.webp',
+  Prisma: '/assets/images/tech-logos/prisma.webp',
+  Docker: '/assets/images/tech-logos/docker.webp',
+  Postman: '/assets/images/tech-logos/postman.webp',
+  Pandas: '/assets/images/tech-logos/pandas.webp',
+  NumPy: '/assets/images/tech-logos/numpy.webp',
+  Matplotlib: '/assets/images/tech-logos/matplotlib.webp',
+  Ollama: '/assets/images/tech-logos/ollama.webp',
+  Claude: '/assets/images/tech-logos/claude.webp',
+  'OpenAI Codex': '/assets/images/tech-logos/openai-codex.webp',
+  LangChain: '/assets/images/tech-logos/langchain.webp',
+  MCP: '/assets/images/tech-logos/mcp.webp',
+};
+
+const techStackItems: TechItem[] = [
   // --- ROW 1: Frontend & Foundations ---
   {
     name: 'JavaScript',
@@ -516,3 +548,8 @@ export const techStackList: TechItem[] = [
     ),
   },
 ];
+
+export const techStackList = techStackItems.map((tech) => ({
+  ...tech,
+  image: technologyLogoPaths[tech.name],
+}));

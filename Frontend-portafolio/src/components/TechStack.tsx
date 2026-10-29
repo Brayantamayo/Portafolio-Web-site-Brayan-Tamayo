@@ -231,7 +231,20 @@ export const TechStack: React.FC = () => {
               isHovered || isSurging ? 'scale-110 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]' : 'group-hover:scale-105'
             }`}
           >
-            {tech.svg}
+            {tech.image ? (
+              <span className="flex h-full w-full items-center justify-center rounded-md bg-white p-1">
+                <img
+                  src={tech.image}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                  className="h-full w-full object-contain"
+                />
+              </span>
+            ) : (
+              tech.svg
+            )}
           </div>
         </button>
       </div>
@@ -458,22 +471,8 @@ export const TechStack: React.FC = () => {
                     }`}
                   />
 
-                  {/* Left tag: SPACE + LED status dot */}
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        isSurging
-                          ? 'bg-emerald-400 shadow-[0_0_10px_#4ade80] animate-pulse'
-                          : 'bg-cyan-400 shadow-[0_0_6px_#22d3ee]'
-                      }`}
-                    />
-                    <span className="font-mono text-[10px] sm:text-xs font-bold tracking-widest text-slate-400 group-hover:text-cyan-300 transition-colors uppercase">
-                      SPACE
-                    </span>
-                  </div>
-
                   {/* Programming statement in center */}
-                  <div className="flex items-center gap-1.5 font-mono text-xs sm:text-sm font-semibold tracking-wide drop-shadow-sm">
+                  <div className="flex items-center  gap-1.5 font-mono text-xs sm:text-sm font-semibold tracking-wide drop-shadow-sm ">
                     <span className="text-purple-400 font-bold">while</span>
                     <span className="text-slate-400 font-normal">(</span>
                     <span className="text-cyan-300 font-semibold">alive</span>
@@ -482,20 +481,7 @@ export const TechStack: React.FC = () => {
                     <span className="text-emerald-400 font-bold group-hover:underline decoration-emerald-400/50">code</span>
                     <span className="text-yellow-300 font-semibold">()</span>
                     <span className="text-slate-300 font-normal">; {'}'}</span>
-                    <span className="text-sm ml-0.5">🚀</span>
-                  </div>
-
-                  {/* Right tag: RGB Aura indicator */}
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className={`text-[9px] sm:text-[11px] font-mono font-bold tracking-wider px-2 py-0.5 rounded-full border transition-all duration-300 ${
-                        isSurging
-                          ? 'bg-cyan-500/20 text-cyan-200 border-cyan-400/80 shadow-[0_0_12px_rgba(0,240,255,0.4)] animate-pulse'
-                          : 'bg-blue-950/60 text-slate-400 group-hover:text-cyan-300 border-blue-800/40 group-hover:border-cyan-500/50'
-                      }`}
-                    >
-                      {isSurging ? '✨ RGB ACTIVO' : '⚡ AURA RGB'}
-                    </span>
+                    <span className="text-sm ml-0.5"></span>
                   </div>
                 </button>
 
