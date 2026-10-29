@@ -70,8 +70,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             pathLength={100}
             strokeDasharray="22 78"
             style={{ willChange: 'stroke-dashoffset' }}
-            animate={{ strokeDashoffset: [0, -100] }}
-            transition={{ repeat: Infinity, duration: 6.5, ease: 'linear' }}
+            animate={{ strokeDashoffset: hidden ? 0 : [0, -100] }}
+            transition={{ repeat: hidden ? 0 : Infinity, duration: 6.5, ease: 'linear' }}
           />
 
           {/* Bright leading tip of the light */}
@@ -88,8 +88,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             pathLength={100}
             strokeDasharray="6 94"
             style={{ willChange: 'stroke-dashoffset' }}
-            animate={{ strokeDashoffset: [0, -100] }}
-            transition={{ repeat: Infinity, duration: 6.5, ease: 'linear' }}
+            animate={{ strokeDashoffset: hidden ? 0 : [0, -100] }}
+            transition={{ repeat: hidden ? 0 : Infinity, duration: 6.5, ease: 'linear' }}
           />
         </svg>
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { motion, useScroll, useTransform } from 'motion/react';
+import { motion, useInView, useScroll, useTransform } from 'motion/react';
 import { ArrowUpRight, Cpu, Globe } from 'lucide-react';
 import { projectsData } from '../data/portfolioData';
 import { Project } from '../types/portfolio';
@@ -7,6 +7,7 @@ import { ProjectModal } from './ProjectModal';
 
 export const FeaturedProjects: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const isSectionInView = useInView(sectionRef, { amount: 0.1 });
 
   // Scroll-linked animation matching About Me: disappears when scrolling down, reappears when scrolling back up
   const { scrollYProgress } = useScroll({
@@ -17,8 +18,6 @@ export const FeaturedProjects: React.FC = () => {
   const sectionOpacity = useTransform(scrollYProgress, [0, 0.15, 0.8, 0.96], [0, 1, 1, 0]);
   const sectionScale = useTransform(scrollYProgress, [0, 0.15, 0.8, 0.96], [0.94, 1, 1, 0.94]);
   const sectionY = useTransform(scrollYProgress, [0, 0.15, 0.8, 0.96], [50, 0, 0, -50]);
-  const sectionBlur = useTransform(scrollYProgress, [0, 0.15, 0.8, 0.96], [8, 0, 0, 10]);
-  const sectionFilter = useTransform(sectionBlur, (v) => `blur(${v}px)`);
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -47,8 +46,7 @@ export const FeaturedProjects: React.FC = () => {
           opacity: sectionOpacity,
           scale: sectionScale,
           y: sectionY,
-          filter: sectionFilter,
-          willChange: 'transform, opacity, filter',
+          willChange: 'transform, opacity',
         }}
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10"
       >
@@ -96,7 +94,7 @@ export const FeaturedProjects: React.FC = () => {
                       filter: 'blur(16px)',
                       willChange: 'transform',
                     }}
-                    animate={{ rotate: 360 }}
+                    animate={isSectionInView ? { rotate: 360 } : false}
                     transition={{
                       repeat: Infinity,
                       duration: isSpecialFeatured ? 8 : 12,
@@ -143,7 +141,7 @@ export const FeaturedProjects: React.FC = () => {
                     stroke={`url(#cardAura-${project.id})`}
                     strokeWidth="2.5"
                     strokeDasharray="180 750"
-                    animate={{ strokeDashoffset: [0, -930] }}
+                    animate={isSectionInView ? { strokeDashoffset: [0, -930] } : false}
                     transition={{ repeat: Infinity, duration: 6, ease: 'linear' }}
                     style={{
                       filter: 'drop-shadow(0 0 10px rgba(56, 189, 248, 0.9))',
@@ -280,4 +278,3 @@ export const FeaturedProjects: React.FC = () => {
     </section>
   );
 };
-

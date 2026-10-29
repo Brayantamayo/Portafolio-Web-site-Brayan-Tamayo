@@ -1,7 +1,10 @@
-import React, { useRef } from 'react';
+import React, { lazy, Suspense, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { engineerProfile } from '../data/portfolioData';
-import { HeroFallingTech } from './HeroFallingTech';
+
+const HeroFallingTech = lazy(() =>
+  import('./HeroFallingTech').then(({ HeroFallingTech }) => ({ default: HeroFallingTech }))
+);
 
 interface HeroProps {
   onOpenContact: () => void;
@@ -20,8 +23,6 @@ export const Hero: React.FC<HeroProps> = ({ isWelcomeDone = false }) => {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.45, 0.95], [1, 0.9, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.45, 0.95], [1, 0.98, 0.91]);
   const heroY = useTransform(scrollYProgress, [0, 0.45, 0.95], [0, -15, -60]);
-  const heroBlur = useTransform(scrollYProgress, [0, 0.45, 0.95], [0, 0, 10]);
-  const heroFilter = useTransform(heroBlur, (v) => `blur(${v}px)`);
 
   // Marquee text array for continuous loop (optimized set)
   const marqueeItems = [
@@ -45,8 +46,7 @@ export const Hero: React.FC<HeroProps> = ({ isWelcomeDone = false }) => {
           opacity: heroOpacity,
           scale: heroScale,
           y: heroY,
-          filter: heroFilter,
-          willChange: 'transform, opacity, filter',
+          willChange: 'transform, opacity',
         }}
         className="w-full h-full flex flex-col justify-end items-center relative"
       >
@@ -113,7 +113,7 @@ export const Hero: React.FC<HeroProps> = ({ isWelcomeDone = false }) => {
               className="relative max-w-[320px] sm:max-w-[440px] md:max-w-[500px] lg:max-w-[560px] overflow-visible flex items-end justify-center pointer-events-none select-none"
             >
               <img
-                src={engineerProfile.userPhoto}
+                src={engineerProfile.heroPhoto}
                 alt="Brayan Tamayo"
                 loading="eager"
                 decoding="async"
@@ -133,7 +133,11 @@ export const Hero: React.FC<HeroProps> = ({ isWelcomeDone = false }) => {
           LAYER 2: Falling Interactive Tech Squares (Matter.js 2D Physics)
           Drops from the sky when entering the page / welcome finishes
           ========================================================================= */}
-      <HeroFallingTech isWelcomeDone={isWelcomeDone} />
+      {isWelcomeDone && (
+        <Suspense fallback={null}>
+          <HeroFallingTech isWelcomeDone={isWelcomeDone} />
+        </Suspense>
+      )}
     </section>
   );
 };

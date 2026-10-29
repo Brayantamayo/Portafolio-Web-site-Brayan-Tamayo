@@ -22,10 +22,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
     };
     window.addEventListener('keydown', handleKeyDown);
 
-    // Auto-transition after text has appeared slowly (4.6s total)
+    // Let the short text reveal finish before automatically showing the page.
     const timer = setTimeout(() => {
       handleDismiss();
-    }, 4600);
+    }, 1250);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -51,8 +51,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
         <motion.div
           key="welcome-slow-reveal"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, filter: 'blur(8px)' }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           onClick={handleDismiss}
           className="fixed inset-0 z-[120] flex flex-col items-center justify-center bg-black select-none cursor-pointer overflow-hidden px-6"
         >
@@ -71,16 +71,16 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
                 return (
                   <span key={wordIdx} className="inline-flex whitespace-nowrap">
                     {item.word.split('').map((char, charIdx) => {
-                      const currentDelay = 0.3 + globalCharIndex * 0.065;
+                      const currentDelay = 0.1 + globalCharIndex * 0.025;
                       globalCharIndex++;
 
                       return (
                         <motion.span
                           key={charIdx}
-                          initial={{ opacity: 0, y: 7, filter: 'blur(5px)' }}
-                          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
                           transition={{
-                            duration: 0.6,
+                            duration: 0.3,
                             delay: currentDelay,
                             ease: [0.16, 1, 0.3, 1],
                           }}
@@ -104,7 +104,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
               <motion.div
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: '100%', opacity: 1 }}
-                transition={{ delay: 2.1, duration: 1.8, ease: 'easeInOut' }}
+                transition={{ delay: 0.35, duration: 0.7, ease: 'easeInOut' }}
                 className="h-full bg-gradient-to-r from-transparent via-cyan-400 to-blue-500 shadow-[0_0_10px_#38bdf8]"
               />
             </div>

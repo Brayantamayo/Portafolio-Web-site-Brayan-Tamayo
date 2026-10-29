@@ -26,8 +26,8 @@ interface HeroFallingTechProps {
   isWelcomeDone?: boolean;
 }
 
-// Helper to generate scattered disordered spawn coordinates high above the viewport (in the sky)
-function generateSkyDropSpawn(width: number, count: number) {
+// Keep the initial drop inside the visible hero and spread the tiles across its width.
+function generateSkyDropSpawn(width: number, height: number, count: number) {
   const safeMargin = 40;
   const availableWidth = Math.max(300, width - safeMargin * 2);
   const slotWidth = availableWidth / count;
@@ -42,8 +42,9 @@ function generateSkyDropSpawn(width: number, count: number) {
   return slotIndices.map((slot) => {
     // Random horizontal position within its shuffled slot
     const x = safeMargin + slot * slotWidth + Math.random() * (slotWidth * 0.7);
-    // Staggered heights high above the screen: -140px to -680px so they visibly rain down
-    const y = -(Math.random() * 540 + 140);
+    const minY = Math.min(96, height * 0.35);
+    const maxY = Math.max(minY, Math.min(220, height * 0.75));
+    const y = minY + Math.random() * (maxY - minY);
     const angle = (Math.random() - 0.5) * Math.PI * 1.5;
     const vx = (Math.random() - 0.5) * 5; // random horizontal drift
     const vy = Math.random() * 4 + 2.5; // downward initial velocity
@@ -58,6 +59,7 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
   const elementsRef = useRef<(HTMLDivElement | null)[]>([]);
   const engineRef = useRef<Matter.Engine | null>(null);
   const runnerRef = useRef<Matter.Runner | null>(null);
+  const isRunnerRunningRef = useRef(false);
   const bodiesRef = useRef<Matter.Body[]>([]);
   const hasDroppedRef = useRef<boolean>(false);
   const activeDragRef = useRef<{
@@ -94,7 +96,7 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
     }
 
     // Generate coordinates high above in the sky
-    const spawnData = generateSkyDropSpawn(width, techItems.length);
+    const spawnData = generateSkyDropSpawn(width, container.clientHeight, techItems.length);
 
     const newBodies = techItems.map((_, i) => {
       const spawn = spawnData[i];
@@ -127,6 +129,9 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
     let height = container.clientHeight || window.innerHeight;
 
     const { Engine, Runner, Bodies, Composite, Events, Body } = Matter;
+    const isMobile = width < 640;
+    const boxSize = isMobile ? 48 : 58;
+    const halfSize = boxSize / 2;
 
     const engine = Engine.create({
       gravity: { x: 0, y: 0.95, scale: 0.001 },
@@ -136,7 +141,22 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
 
     const runner = Runner.create();
     runnerRef.current = runner;
-    Runner.run(runner, engine);
+
+    const startRunner = () => {
+      if (isRunnerRunningRef.current || !runnerRef.current || !engineRef.current) return;
+      runner.enabled = true;
+      Runner.run(runner, engine);
+      isRunnerRunningRef.current = true;
+    };
+
+    const stopRunner = () => {
+      if (!isRunnerRunningRef.current) return;
+      runner.enabled = false;
+      Runner.stop(runner);
+      isRunnerRunningRef.current = false;
+    };
+
+    startRunner();
 
     // Wall & floor thicknesses
     const wallThickness = 120;
@@ -146,7 +166,7 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
     // Floor (exact delimiter with About Me at bottom border)
     const floor = Bodies.rectangle(
       width / 2,
-      height + floorThickness / 2,
+      height - halfSize + floorThickness / 2,
       width * 2.5,
       floorThickness,
       { isStatic: true, restitution: 0.65, friction: 0.25 }
@@ -154,7 +174,7 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
 
     // Left wall
     const leftWall = Bodies.rectangle(
-      -wallThickness / 2,
+      halfSize - wallThickness / 2,
       height / 2,
       wallThickness,
       height * 4,
@@ -163,27 +183,22 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
 
     // Right wall
     const rightWall = Bodies.rectangle(
-      width + wallThickness / 2,
+      width - halfSize + wallThickness / 2,
       height / 2,
       wallThickness,
       height * 4,
       { isStatic: true, restitution: 0.75, friction: 0.1 }
     );
 
-    // Ceiling placed high at -800 to allow deep staggered spawn altitudes
     const ceiling = Bodies.rectangle(
       width / 2,
-      -800,
+      halfSize - ceilingThickness / 2,
       width * 2.5,
       ceilingThickness,
       { isStatic: true, restitution: 0.6, friction: 0.1 }
     );
 
     Composite.add(engine.world, [floor, leftWall, rightWall, ceiling]);
-
-    const isMobile = width < 640;
-    const boxSize = isMobile ? 48 : 58;
-    const halfSize = boxSize / 2;
 
     // 60FPS DOM Sync Loop: skips resting bodies to prevent layout thrashing
     const updateHandler = () => {
@@ -196,6 +211,9 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
           const y = body.position.y - halfSize;
           const angle = body.angle;
           el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${angle.toFixed(3)}rad)`;
+          el.style.zIndex = activeDragRef.current?.index === i
+            ? '20000'
+            : String(10000 + Math.round(body.position.y) + i);
         }
       }
     };
@@ -208,11 +226,9 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
         const entry = entries[0];
         if (!runnerRef.current || !engineRef.current) return;
         if (entry.isIntersecting) {
-          if (!runnerRef.current.enabled) {
-            Runner.run(runnerRef.current, engineRef.current);
-          }
+          startRunner();
         } else {
-          Runner.stop(runnerRef.current);
+          stopRunner();
         }
       },
       { threshold: 0.05 }
@@ -230,19 +246,19 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
 
       Body.setPosition(floor, {
         x: width / 2,
-        y: height + floorThickness / 2,
+        y: height - halfSize + floorThickness / 2,
       });
       Body.setPosition(leftWall, {
-        x: -wallThickness / 2,
+        x: halfSize - wallThickness / 2,
         y: height / 2,
       });
       Body.setPosition(rightWall, {
-        x: width + wallThickness / 2,
+        x: width - halfSize + wallThickness / 2,
         y: height / 2,
       });
       Body.setPosition(ceiling, {
         x: width / 2,
-        y: -800,
+        y: halfSize - ceilingThickness / 2,
       });
     };
 
@@ -260,10 +276,11 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
       clearTimeout(safetyTimer);
       window.removeEventListener('resize', handleResize);
       Events.off(engine, 'afterUpdate', updateHandler);
-      Runner.stop(runner);
+      stopRunner();
       Engine.clear(engine);
       engineRef.current = null;
       runnerRef.current = null;
+      isRunnerRunningRef.current = false;
       bodiesRef.current = [];
     };
   }, [dropBodiesFromSky]);
@@ -288,6 +305,7 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
 
     // Temporarily make static so physics and gravity don't fight user's cursor
     Matter.Body.setStatic(body, true);
+    Matter.Sleeping.set(body, false);
     Matter.Body.setVelocity(body, { x: 0, y: 0 });
     Matter.Body.setAngularVelocity(body, 0);
 
@@ -309,6 +327,7 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
       pointerId: e.pointerId,
       samples: [{ x, y, time: now }],
     };
+    e.currentTarget.style.zIndex = '20000';
   };
 
   const handlePointerMove = (index: number, e: React.PointerEvent<HTMLDivElement>) => {
@@ -348,9 +367,11 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
     }
 
     if (!body) return;
+    e.currentTarget.style.zIndex = String(10000 + Math.round(body.position.y) + index);
 
     // Re-enable dynamic physics on release
     Matter.Body.setStatic(body, false);
+    Matter.Sleeping.set(body, false);
 
     // Calculate throw velocity based on recent pointer movement samples (last 120ms)
     const now = performance.now();
@@ -421,9 +442,7 @@ export const HeroFallingTech: React.FC<HeroFallingTechProps> = ({ isWelcomeDone 
           >
             <div
               className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center transition-all duration-150 group ${
-                isDragging
-                  ? 'scale-115 z-40'
-                  : 'hover:scale-105 z-20'
+                isDragging ? 'scale-115' : 'hover:scale-105'
               }`}
               style={{
                 background: 'rgba(11, 18, 33, 0.90)',

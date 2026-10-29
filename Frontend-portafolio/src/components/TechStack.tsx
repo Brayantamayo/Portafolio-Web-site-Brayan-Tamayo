@@ -14,8 +14,6 @@ export const TechStack: React.FC = () => {
   const stackOpacity = useTransform(scrollYProgress, [0, 0.2, 0.7, 0.95], [0, 1, 1, 0]);
   const stackScale = useTransform(scrollYProgress, [0, 0.2, 0.7, 0.95], [0.93, 1, 1, 0.92]);
   const stackY = useTransform(scrollYProgress, [0, 0.2, 0.7, 0.95], [50, 0, 0, -60]);
-  const stackBlur = useTransform(scrollYProgress, [0, 0.2, 0.7, 0.95], [8, 0, 0, 12]);
-  const stackFilter = useTransform(stackBlur, (v) => `blur(${v}px)`);
 
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
@@ -260,8 +258,7 @@ export const TechStack: React.FC = () => {
           opacity: stackOpacity,
           scale: stackScale,
           y: stackY,
-          filter: stackFilter,
-          willChange: 'transform, opacity, filter',
+          willChange: 'transform, opacity',
         }}
         className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative z-10"
       >
@@ -532,4 +529,3 @@ export const TechStack: React.FC = () => {
     </section>
   );
 };
-

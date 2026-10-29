@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'motion/react';
+import { motion, useInView, useScroll, useTransform } from 'motion/react';
 import { Sparkles, Terminal, Code2, Cpu, Rocket } from 'lucide-react';
 import { engineerProfile } from '../data/portfolioData';
 
 export const AboutMe: React.FC = () => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const isCardInView = useInView(cardRef, { amount: 0.1 });
 
   // Scroll-linked animation: disappears when scrolling down past it, reappears when scrolling back up
   const { scrollYProgress } = useScroll({
@@ -17,8 +18,6 @@ export const AboutMe: React.FC = () => {
   const opacity = useTransform(scrollYProgress, [0, 0.22, 0.62, 0.94], [0, 1, 1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.22, 0.62, 0.94], [0.93, 1, 1, 0.92]);
   const y = useTransform(scrollYProgress, [0, 0.22, 0.62, 0.94], [50, 0, 0, -60]);
-  const blur = useTransform(scrollYProgress, [0, 0.22, 0.62, 0.94], [8, 0, 0, 12]);
-  const filter = useTransform(blur, (v) => `blur(${v}px)`);
 
   return (
     <section id="about" className="py-28 relative border-t border-blue-900/20 bg-[#030712] overflow-hidden section-contain">
@@ -52,8 +51,7 @@ export const AboutMe: React.FC = () => {
             opacity,
             scale,
             y,
-            filter,
-            willChange: 'transform, opacity, filter',
+            willChange: 'transform, opacity',
           }}
           className="relative rounded-3xl p-[2px] overflow-visible shadow-2xl group transition-shadow duration-500"
         >
@@ -62,7 +60,7 @@ export const AboutMe: React.FC = () => {
           {/* ======================================================== */}
           <div className="absolute -inset-[3px] rounded-[28px] overflow-hidden pointer-events-none z-0">
             <motion.div
-              animate={{ rotate: 360 }}
+              animate={isCardInView ? { rotate: 360 } : false}
               transition={{ repeat: Infinity, duration: 7, ease: 'linear' }}
               className="absolute -inset-[150%] origin-center"
               style={{
@@ -108,7 +106,7 @@ export const AboutMe: React.FC = () => {
               stroke="url(#aboutAuraGradient)"
               strokeWidth="2.5"
               strokeDasharray="180 800"
-              animate={{ strokeDashoffset: [0, -980] }}
+              animate={isCardInView ? { strokeDashoffset: [0, -980] } : false}
               transition={{ repeat: Infinity, duration: 5.5, ease: 'linear' }}
               style={{
                 filter: 'drop-shadow(0 0 10px rgba(56, 189, 248, 0.95))',
