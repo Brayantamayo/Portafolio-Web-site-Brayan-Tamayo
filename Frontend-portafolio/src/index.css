@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html {
+    font-family: var(--font-body);
+    color-scheme: dark;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+}
+
+/* Performance: Off-screen layout containment */
+.section-contain {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 700px;
+}
+
+/* Custom smooth dark scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #030712;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* Subtle tech grid background pattern */
+.tech-grid-bg {
+  background-image: radial-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.tech-radial-glow {
+  background: radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 60%);
+}
